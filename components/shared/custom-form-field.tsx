@@ -17,6 +17,9 @@ import PhoneInput from 'react-phone-number-input'
 import { E164Number } from 'libphonenumber-js/core'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { Select, SelectContent, SelectTrigger, SelectValue } from '../ui/select'
+import { Textarea } from '../ui/textarea'
+import { Checkbox } from '../ui/checkbox'
 
 interface CustomProps {
 	control: Control<any>
@@ -69,6 +72,18 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 			)
 			break
 
+		case FormFieldType.TEXTAREA:
+			return (
+				<FormControl>
+					<Textarea
+						placeholder={placeholder}
+						{...field}
+						className='shad-textArea'
+						disabled={props.disabled}
+					></Textarea>
+				</FormControl>
+			)
+
 		case FormFieldType.PHONE_INPUT:
 			return (
 				<FormControl>
@@ -110,6 +125,40 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 		case FormFieldType.SKELETON:
 			return renderSkeleton ? renderSkeleton(field) : null
 
+		case FormFieldType.SELECT:
+			return (
+				<FormControl>
+					<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<FormControl className='shad-select-trigger'>
+							<SelectTrigger>
+								<SelectValue placeholder={placeholder} />
+							</SelectTrigger>
+						</FormControl>
+
+						<SelectContent className='shad-select-content'>
+							{props.children}
+						</SelectContent>
+					</Select>
+				</FormControl>
+			)
+
+		case FormFieldType.CHECKBOX:
+			return (
+				<FormControl>
+					<div className='flex items-center gap-4'>
+						<Checkbox
+							id={props.name}
+							checked={field.value}
+							onChange={field.onChange}
+							{...field}
+						/>
+						<label htmlFor={props.name} className='checkbox-label'>
+							{props.label}
+						</label>
+					</div>
+				</FormControl>
+			)
+
 		default:
 			break
 	}
@@ -124,8 +173,9 @@ const CustomFormField = (props: CustomProps) => {
 			name={name}
 			render={({ field }) => (
 				<FormItem className='flex-1'>
-					{label && <FormLabel>{label}</FormLabel>}
-
+					{props.fieldType !== FormFieldType.CHECKBOX && label && (
+						<FormLabel className='shad-input-label'>{label}</FormLabel>
+					)}
 					<RenderField field={field} props={props} />
 
 					<FormMessage className='shad-error' />
